@@ -1,0 +1,102 @@
+import json
+from itertools import count
+
+dados = {
+    "estoque": [
+        {
+            "codigoProduto": 101,
+            "descricaoProduto": "Caneta Azul",
+            "estoque": 150
+        },
+        {
+            "codigoProduto": 102,
+            "descricaoProduto": "Caderno Universitário",
+            "estoque": 75
+        },
+        {
+            "codigoProduto": 103,
+            "descricaoProduto": "Borracha Branca",
+            "estoque": 200
+        },
+        {
+            "codigoProduto": 104,
+            "descricaoProduto": "Lápis Preto HB",
+            "estoque": 320
+        },
+        {
+            "codigoProduto": 105,
+            "descricaoProduto": "Marcador de Texto Amarelo",
+            "estoque": 90
+        }
+    ]
+}
+
+# Gerador de ID único para movimentações
+gerador_id = count(1)
+
+# Histórico das movimentações
+movimentacoes = []
+
+
+def movimentar_estoque(codigo_produto, tipo, quantidade, descricao):
+    produto = next(
+        (p for p in dados["estoque"] if p["codigoProduto"] == codigo_produto),
+        None
+    )
+
+    if not produto:
+        print("Produto não encontrado.")
+        return
+
+    if tipo.upper() == "E":
+        produto["estoque"] += quantidade
+
+    elif tipo.upper() == "S":
+        if quantidade > produto["estoque"]:
+            print(
+                f"Erro: Estoque insuficiente. Disponível: {produto['estoque']}"
+            )
+            return
+
+        produto["estoque"] -= quantidade
+
+    else:
+        print("Tipo inválido. Use E para Entrada ou S para Saída.")
+        return
+
+    movimentacao = {
+        "id": next(gerador_id),
+        "codigoProduto": codigo_produto,
+        "produto": produto["descricaoProduto"],
+        "tipo": "Entrada" if tipo.upper() == "E" else "Saída",
+        "quantidade": quantidade,
+        "descricao": descricao
+    }
+
+    movimentacoes.append(movimentacao)
+
+    print("\nMovimentação realizada com sucesso!")
+    print(f"ID Movimentação: {movimentacao['id']}")
+    print(f"Produto: {produto['descricaoProduto']}")
+    print(f"Estoque final: {produto['estoque']} unidades")
+
+
+# Exemplos de utilização
+
+movimentar_estoque(
+    codigo_produto=101,
+    tipo="E",
+    quantidade=50,
+    descricao="Compra de fornecedor"
+)
+
+movimentar_estoque(
+    codigo_produto=101,
+    tipo="S",
+    quantidade=30,
+    descricao="Venda para cliente"
+)
+
+print("\nHistórico de Movimentações:")
+for mov in movimentacoes:
+    print(mov)
